@@ -127,7 +127,7 @@ def make_chunk(type, data):
 	"""
 	out = struct.pack("!I", len(data))
 	data = type.encode("latin-1") + data
-	out += data + struct.pack("!I", binascii.crc32(data))
+	out += data + struct.pack("!I", binascii.crc32(data) & 0xffffffff)
 	return out
 	
 class PNG:
