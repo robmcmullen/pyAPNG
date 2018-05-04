@@ -21,6 +21,13 @@ except ImportError:
 	# Without Pillow, apng can only handle PNG images
 	pass
 
+try:
+	import numpy as np
+
+	isnumpy = lambda data: hasattr(data, "flat")
+except ImportError:
+	isnumpy = lambda data: False
+
 PNG_SIGN = b"\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
 
 # http://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html#C.Summary-of-standard-chunks
@@ -46,6 +53,8 @@ def is_png(png):
 		png.seek(position)
 	elif isinstance(png, bytes):
 		png_header = png[:8]
+	elif isnumpy(png):
+		png_header = bytes(png.flat[:8])
 	else:
 		raise TypeError("Must be file, bytes, or str but get {}"
 				.format(type(png)))
@@ -86,6 +95,10 @@ def chunks(png):
 				with io.BytesIO() as f2:
 					PIL.Image.open(f).save(f2, "PNG", optimize=True)
 					png = f2.getvalue()
+		elif isnumpy(png):
+			with io.BytesIO() as f2:
+				im = PIL.Image.fromarray(png).save(f2, "PNG", optimize=True)
+				png = np.fromstring(f2.getvalue(), dtype=np.uint8)
 		else:
 			with io.BytesIO() as f2:
 				PIL.Image.open(png).save(f2, "PNG", optimize=True)
@@ -98,6 +111,9 @@ def chunks(png):
 	elif hasattr(png, "read"):
 		# file like
 		png = png.read()
+	elif isnumpy(png):
+		# numpy array
+		png = png.tostring()
 		
 	return chunks_read(png)
 		
