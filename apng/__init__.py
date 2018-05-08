@@ -40,8 +40,9 @@ def is_png(png):
 	"""Test if ``png`` is a valid PNG file by checking the signature.
 	
 	:arg png: If ``png`` is a :any:`path-like object` or :any:`file-like object`
-		object, read the content into bytes.
-	:type png: path-like, file-like, or bytes
+		or a numpy array, read the content into bytes. Numpy arrays
+		are only supported if the :py:mod:`numpy` module is installed.
+	:type png: path-like, file-like, numpy array, or bytes
 	:rtype: bool
 	"""
 	if isinstance(png, str) or hasattr(png, "__fspath__"):
